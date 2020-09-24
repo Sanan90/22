@@ -8,62 +8,94 @@ import java.util.List;
 public class SimpleAuthService implements AuthService{
 
 
-    private class UserData {
-        String login;
-        String password;
-        String nickname;
+    private static Connection connection;
+    private static Statement stat;
+    private static PreparedStatement psInsert;
 
-        public UserData (String login, String password, String nickname) {
-            this.login = login;
-            this.password= password;
-            this.nickname = nickname;
+
+    public static void connect() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:clientList.db");
+        stat = connection.createStatement();
+    }
+
+    public static void disconnect() {
+        try {
+            stat.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        try {
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
         }
     }
 
-    List<UserData> users;
-
-    public SimpleAuthService() {
-        users = new ArrayList<>();
-        for (int i = 0; i <= 10 ; i++) {
-            users.add(new UserData("login" + i, "pass" + i,
-                    "nickname" + i));
-        }
-
-        users.add(new UserData("sanan", "sanan", "mafeeoznik22"));
-        users.add(new UserData("elish", "elish", "KELT"));
-        users.add(new UserData("alex", "alex", "Булочка"));
-        users.add(new UserData("lera", "lera", "Зайка"));
-        users.add(new UserData("madina", "madina", "Meymun"));
-        users.add(new UserData("melek", "melek", "Tosmelek"));
-
+    private static void fillTable(String login, String password, String nickname) throws SQLException {
+        psInsert.setString(1, login);
+        psInsert.setString(2, password);
+        psInsert.setString(3, nickname);
+        psInsert.executeUpdate();
     }
-
 
     @Override
-    public String getNickNameByLoginAndPassword(String login, String password) {
+    public String getNickNameByLoginAndPassword(String login, String password) throws SQLException {
 
+        try {
+            connect();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
+        ResultSet rs = stat.executeQuery("SELECT login, password, nickName FROM clientList;");
 
-        for (UserData user : users) {
-            if (user.login.equals(login) && user.password.equals(password)) {
-                return user.nickname;
+        while (rs.next() == true) {
+            String nick = rs.getString("nickName");
+            if (rs.getString("login").equals(login) && rs.getString("password").equals(password)) {
+                disconnect();
+                return nick;
             }
         }
 
+//        for (UserData user : users) {
+//            if (user.login.equals(login) && user.password.equals(password)) {
+//                return user.nickname;
+//            }
+//        }
+        stat.close();
         return null;
     }
 
     @Override
-    public boolean registration(String login, String password, String nickName) {
-
-
-        for (UserData user : users) {
-            if (user.login.equals(login) || user.nickname.equals(nickName)) {
-                return false;
-            }
+    public boolean registration(String login, String password, String nickName) throws SQLException {
+        try {
+            connect();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
         }
-        users.add(new UserData(login, password, nickName));
+        ResultSet rs = stat.executeQuery("SELECT login, nickName FROM clientList;");
+
+
+        while (rs.next() == true) {
+                if (rs.getString("login").equals(login) || rs.getString("nickName").equals(nickName)) {
+                    disconnect();
+
+                    rs.close();
+                    return false;
+                }
+        }
+        disconnect();
+        rs.close();
         return true;
+//        for (UserData user : users) {
+//            if (user.login.equals(login) || user.nickname.equals(nickName)) {
+//                return false;
+//            }
+//        }
+//        users.add(new UserData(login, password, nickName));
+//        return true;
     }
 }
 

@@ -10,6 +10,17 @@ import java.sql.*;
 
 public class RegController {
 
+    private static Connection connection;
+    private static Statement stat;
+    private static PreparedStatement psInsert;
+
+    public static void connect() throws ClassNotFoundException, SQLException {
+        Class.forName("org.sqlite.JDBC");
+        connection = DriverManager.getConnection("jdbc:sqlite:clientList.db");
+        stat = connection.createStatement();
+    }
+
+
     private Controller controller;
     @FXML
     private TextArea regTextArea;
@@ -32,12 +43,34 @@ public class RegController {
     }
 
 
+    public static void prepareAllStatement() throws SQLException {
+        psInsert = connection.prepareStatement("INSERT INTO clientList(login, password, nickname) VALUES (?, ?, ?);");
+    }
+
+    private static void fillTable(String login, String password, String nickname) throws SQLException {
+        psInsert.setString(1, login);
+        psInsert.setString(2, password);
+        psInsert.setString(3, nickname);
+            psInsert.executeUpdate();
+    }
+
     public void addMsgToTextArea (String msg) {
         if (msg.startsWith(" =) ")) {
             regTextArea.appendText("Поздравляем!!! " + msg + "\n" +
                     "Ваш логин для входа " + loginField.getText() + "\n" +
                     "Ваш пароль для входа " + passwordField.getText() + "\n");
 
+
+
+            try {
+                connect();
+                prepareAllStatement();
+                fillTable(loginField.getText(), passwordField.getText(), nickField.getText() );
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
 
         }   else {   regTextArea.appendText(msg + "\n");
 

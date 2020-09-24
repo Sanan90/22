@@ -76,8 +76,6 @@ public class Controller implements Initializable {
         setTitle(nickname);
     }
 
-
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setAuthenticated(false);

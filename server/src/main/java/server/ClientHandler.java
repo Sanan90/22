@@ -17,6 +17,15 @@ public class ClientHandler {
     private String  nickname;
     private String login;
 
+//        private static Connection connection;
+//    private static Statement stat;
+//    private static PreparedStatement psInsert;
+//
+//    public static void connect() throws ClassNotFoundException, SQLException {
+//        Class.forName("org.sqlite.JDBC");
+//        connection = DriverManager.getConnection("jdbc:sqlite:clientList.db");
+//        stat = connection.createStatement();
+//    }
 
     public ClientHandler(Server server, Socket socket) throws SocketTimeoutException {
         try{
@@ -25,6 +34,13 @@ public class ClientHandler {
             in = new DataInputStream(socket.getInputStream());
             out = new DataOutputStream(socket.getOutputStream());
 
+//            try {
+//                connect();
+//            } catch (ClassNotFoundException e) {
+//                e.printStackTrace();
+//            } catch (SQLException throwables) {
+//                throwables.printStackTrace();
+//            }
 
 
             new Thread(()-> {
@@ -77,6 +93,12 @@ public class ClientHandler {
                                 socket.setSoTimeout(0);
                                 sendMsg("/regok");
 
+//                                            try {
+//                System.out.println("Хер там плавал2");
+//                stat.executeUpdate("INSERT INTO clientList(Login, password, Nickname) VALUES (bob22, 800, Bob);");
+//            } catch (SQLException throwables) {
+//                System.out.println("Хер там плавал");
+//            }
 
                             } else {
                                 sendMsg("/regno");

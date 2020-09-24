@@ -21,8 +21,18 @@ public class Main extends Application {
 
     public static void main(String[] args) {
 
+//        stat.executeUpdate("INSERT INTO clientList(login, password, nickname) VALUES ('bob2', 80, 'Bobbie');");
+
+
         launch(args);
     }
 
+    private void createTableEx() {
+        String s = "CREATE TABLE students (\n" +
+                "    id    INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "    name  TEXT,\n" +
+                "    score INTEGER\n" +
+                ");\n";
+    }
 
 }
